@@ -1,8 +1,5 @@
 # ADR-007: Strict Tiered Autonomy — AI Assists, Humans Decide
 
-## Status
-Accepted
-
 ## Context
 Deploying artificial intelligence across physical environments presents significant ethical and safety concerns:
 - Hallucinated animal medical advice could harm endangered species.
@@ -62,7 +59,3 @@ flowchart TD
 ## Alternatives Considered & Rejected
 1. **Full Automation (Autonomous Estate Orchestration)**: Rejected as reckless, legally untenable, and dangerous to human life and animal welfare.
 2. **Zero AI Deployment**: Rejected because manual scheduling, static paper records, and unassisted crowd control fail to scale to 1.8M annual visitors.
-
-## Judging Criteria Addressed
-- **Criterion 2 (AI Practicality & Operational Rigor)**: Realistic, human-in-the-loop operational AI.
-- **Criterion 5 (Security, Safety, Ethics & Privacy)**: Responsible AI governance meeting international standards.

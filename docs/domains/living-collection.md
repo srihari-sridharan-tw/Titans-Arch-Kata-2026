@@ -34,23 +34,34 @@ Living Collection owns the **welfare, monitoring, and public representation** of
 
 Jumping piranhas (*Pygocentrus nattereri*) cannot be individually tagged. Dense schooling, continuous 3D locomotion, and water turbidity make individual identification biologically impossible. The domain models them honestly as a **School Aggregate**:
 
-$$\hat{N} \quad\text{with 95% CI } [\text{ci}_{\text{low}},\, \text{ci}_{\text{high}}]$$
+1. **Population Estimate Range**:
+   - Rather than pretending to track each individual fish, the system estimates the total school count with a statistical confidence range (e.g., estimated 450 fish, within a 435–465 confidence band).
 
-$$\text{Total Estimated Biomass: } B = \hat{N} \cdot \bar{w} \quad (\bar{w} = \text{rolling mean weight from feeder telemetry})$$
+2. **Total Biomass**:
+   ```text
+   Total School Biomass = Estimated Fish Count × Rolling Average Weight
+   ```
+   *(where average fish weight is continuously updated from feeder load-cell telemetry and optical sizing)*.
 
-$$\text{Dispersion Index: } D = \frac{\sigma^2}{\mu} \quad (D > 1.4 \implies \text{clump/feeding frenzy}; \quad D < 0.7 \implies \text{lethargy/hypoxia})$$
+3. **School Dispersion Index (Spacing & Clustering)**:
+   Measures whether fish are clustered tightly or spread out across the aquarium:
+   - **Clump / Feeding Frenzy (Score > 1.4)**: Fish are packed tightly in one area (normal during scheduled feedings).
+   - **Lethargy / Hypoxia Warning (Score < 0.7)**: Fish are abnormally scattered and motionless (early indicator of low oxygen or water stratification).
 
-$$\text{Velocity Coherence: } C_v = \frac{\left\|\sum_{i=1}^n \vec{v}_i\right\|}{\sum_{i=1}^n \|\vec{v}_i\|} \in [0, 1] \quad (C_v > 0.85 \implies \text{polarized escape/flight response})$$
+4. **Velocity Coherence (Synchronous Swim Direction)**:
+   Measures whether the school is swimming together in unison (scored from 0.0 to 1.0):
+   - **Normal Schooling (Score < 0.50)**: Fish circulate independently in varied directions.
+   - **Escape / Flight Reflex (Score > 0.85)**: Entire school darts in an identical direction simultaneously (indicates acute stress, pump vibration, or tank disturbance).
 
 - Downstream systems consume **statistical population bands**, not fabricated individual IDs.
-- If $D < 0.7$ alongside a dissolved oxygen drop below 4.5 mg/L, an early-warning telemetry event fires before clinical distress occurs.
+- If the Dispersion Index drops below 0.7 alongside a dissolved oxygen drop below 4.5 mg/L, an early-warning telemetry event fires before clinical distress occurs.
 
 ### Census Pipeline
 
 ```mermaid
 stateDiagram-v2
     [*] --> IngestSnapshot: 5-Frame Camera Burst
-    IngestSnapshot --> ConfidenceFilter: Calculate n̂ & 95% CI
+    IngestSnapshot --> ConfidenceFilter: Calculate Count & Confidence Range
     
     ConfidenceFilter --> HighConfidence: Quality ≥ 0.85
     ConfidenceFilter --> LowConfidence: Turbid Water / Algae / Occlusion
@@ -59,10 +70,10 @@ stateDiagram-v2
     RequestSecondaryCamera --> HighConfidence: Combined Fusion Meets Threshold
     RequestSecondaryCamera --> ManualInspectionQueued: Image Degradation Persists
     
-    HighConfidence --> IntervalComparison: Compare CI vs. Day-1 Baseline
+    HighConfidence --> IntervalComparison: Compare Range vs. Day-1 Baseline
     
-    IntervalComparison --> CensusStable: Intervals Overlap
-    IntervalComparison --> DisjointDropDetected: Complete Non-Overlap Drop
+    IntervalComparison --> CensusStable: Confidence Ranges Overlap
+    IntervalComparison --> DisjointDropDetected: Significant Population Drop
     
     DisjointDropDetected --> DoubleBlindKeeperCount: Shed Tablet Verification
     ManualInspectionQueued --> DoubleBlindKeeperCount: Physical Keeper Inspection
@@ -80,7 +91,7 @@ stateDiagram-v2
 |---|---|---|
 | Model | YOLOv8-nano (custom-trained) | Smallest model that fits Jetson Orin Nano |
 | Input | 5-frame burst at 2 FPS | Captures jumping motion across frames |
-| Output | Bounding boxes → count → n̂ with CI | Statistical aggregate, not individual IDs |
+| Output | Bounding boxes → estimated count & confidence range | Statistical aggregate, not individual IDs |
 | Latency | < 200ms per burst | Fast enough for continuous monitoring |
 | Training data | Open fisheries datasets + synthetic augmentation + keeper-labeled estate data | Transfer learning bootstrapping |
 | Retraining trigger | Winkler score drops below 0.80 for 7 consecutive days | Production drift detection |
@@ -172,22 +183,25 @@ sequenceDiagram
 
 ## Containment & Life-Safety Architecture
 
+```mermaid
+flowchart TD
+    subgraph Loop["Local Containment Perimeter (Air-Gapped Life-Safety Loop)"]
+        Sensor["Lid Contact Sensor<br/>(Normally-Closed Dry Contact)"] --> MCU["Enclosure Safety Microcontroller<br/>(Deterministic Firmware Logic)"]
+        
+        MCU -->|"Direct Dry Contact (<10ms)"| Solenoid["Physical Solenoid Interlock<br/>(Immediate Barrier Lock)"]
+        MCU -->|"Relay Output (<20ms)"| Strobe["Local Strobe Siren<br/>(Audible & Visual Alert)"]
+        MCU -->|"Hardwired Serial (<30ms)"| ShedTerminal["Shed Terminal & Tablet<br/>(Keeper Warning Display)"]
+        MCU -->|"Local Ethernet (<50ms)"| LocalMQTT["Zone MQTT Broker<br/>(Buffered CloudEvent Dispatch)"]
+    end
 ```
-┌─────────────────────────────────────────────────────────────┐
-│  CONTAINMENT ALERT PATH (Zero Cloud Dependency)             │
-│                                                             │
-│  Lid Contact Sensor → Microcontroller → Physical Solenoid   │
-│                        └─→ Local Strobe Siren               │
-│                        └─→ Shed Tablet Alert                │
-│                        └─→ MQTT PUBLISH (buffered)          │
-│                                                             │
-│  ⚡ Total latency: < 50ms (firmware-level)                   │
-│  🔌 Power: Independent UPS per enclosure zone               │
-│  ☁️ Cloud dependency: ZERO                                   │
-│  🤖 AI dependency: ZERO                                     │
-│  📶 WiFi dependency: ZERO                                   │
-└─────────────────────────────────────────────────────────────┘
-```
+
+| Operational Characteristic | Specification | Architectural Safety Invariant |
+|---|---|---|
+| **Total Response Latency** | **< 50 ms** (firmware-level execution) | Immediate mechanical solenoid engagement before physical barrier breach |
+| **Power Resilience** | Dedicated Zone UPS per enclosure | Continuous operation through complete estate electrical power outages |
+| **Cloud Dependency** | **Zero** | 100% autonomous local execution; completely immune to WAN outages |
+| **AI Dependency** | **Zero** | Pure deterministic relay & firmware logic; zero probabilistic models |
+| **Wi-Fi Dependency** | **Zero** | Hardwired copper loop; immune to RF interference or packet loss |
 
 ---
 

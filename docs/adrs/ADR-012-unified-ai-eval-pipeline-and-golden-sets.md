@@ -1,8 +1,5 @@
 # ADR-012: Unified AI Eval Pipeline & Golden Sets
 
-## Status
-Accepted
-
 ## Context
 Deploying Generative AI and Large Language Models (LLMs) across customer-facing and operational workflows introduces non-deterministic failure modes:
 - The AI Concierge might hallucinate ticket prices, promise non-existent discounts, or invent attraction hours.
@@ -60,7 +57,3 @@ flowchart TD
 ## Alternatives Considered & Rejected
 1. **Manual Ad-Hoc Prompt Testing**: Rejected as unscalable, error-prone, and incapable of detecting edge regressions.
 2. **Pure Deterministic Regex String Matching**: Rejected because natural language can express identical correct semantic meaning in infinite lexical variations.
-
-## Judging Criteria Addressed
-- **Criterion 2 (AI Practicality & Operational Rigor)**: Rigorous MLOps engineering matching modern industry best practices.
-- **Criterion 1 (Architectural Soundness)**: Repeatable, automated quality assurance.

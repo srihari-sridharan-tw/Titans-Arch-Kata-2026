@@ -1,8 +1,5 @@
 # ADR-013: Modular Monolith per Bounded Context
 
-## Status
-Accepted
-
 ## Context
 A critical architectural decision for the Von Digitalis Estates digital platform is selecting the macro-architectural deployment style:
 - **Microservices Sprawl**: Splitting the estate into 25–40 tiny independent microservices (e.g., ticket-cart-service, payment-service, piranha-counter-service, queue-wait-service, weather-service, badge-service).
@@ -65,7 +62,3 @@ flowchart TD
 ## Alternatives Considered & Rejected
 1. **Fine-Grained Microservices (30+ services)**: Rejected due to unnecessary cognitive load, operational fragility, and excessive cloud overhead for the team size.
 2. **Single Monolithic Codebase & Shared Database**: Rejected because sharing a database schema across ticketing, animal welfare, and park operations inevitably destroys domain boundaries.
-
-## Judging Criteria Addressed
-- **Criterion 1 (Architectural Soundness)**: Pragmatic, modern software architecture balancing separation with simplicity.
-- **Criterion 3 (Deployability & Operational Feasibility)**: Minimal operational friction for a mid-sized engineering team.

@@ -80,16 +80,3 @@ Four bounded contexts run on one Kafka backbone, one Model Gateway, one evaluati
 
 Payment provider fees (~1.4% + $0.20) remain the largest external variable cost ($8,500–$10,500/mo at 15K/day), but scale strictly with gross revenue.
 
----
-
-## Timeline
-
-| Phase | Duration | Deliverable |
-|---|---|---|
-| **Phase 1: Foundation** | Months 1–4 | Edge mesh, Ticketing (online + offline gates), basic Living Collection telemetry |
-| **Phase 2: Intelligence** | Months 5–8 | AI Concierge, dynamic pricing, demand forecast, edge CV for piranhas |
-| **Phase 3: Growth** | Months 9–12 | Companion app, virtual queuing, recommendation engine, retention campaigns |
-
----
-
-*The piranhas are counted. The tickets are valid. The WiFi is down. Everything still works.*

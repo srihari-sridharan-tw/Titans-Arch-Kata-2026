@@ -1,8 +1,5 @@
 # ADR-001: Edge-First MQTT 5 Mesh with 72h NVMe Store-and-Forward
 
-## Status
-Accepted
-
 ## Context
 The Von Digitalis Estates span extensive outdoor grounds, historic forested areas (Bavarian Wood), and dense stone structures dating back generations. Physical environmental conditions result in intermittent WAN connectivity, occasional fiber trenching damage, and severe cellular dead zones.
 
@@ -47,7 +44,3 @@ flowchart LR
 ## Alternatives Considered & Rejected
 1. **Direct-to-Cloud Cellular Telemetry**: Rejected due to high ongoing SIM cellular data costs, high latency jitter, and vulnerability to cellular network saturation during peak estate events.
 2. **Local SQLite Store-and-Forward at Each Sensor**: Rejected due to management complexity across 1,000+ tiny sensor devices lacking sufficient flash memory or write endurance.
-
-## Judging Criteria Addressed
-- **Criterion 1 (Soundness)**: Addresses real-world estate physical geography and network limitations.
-- **Criterion 3 (Deployability)**: Standardized industrial hardware BOM with automated recovery mechanisms.

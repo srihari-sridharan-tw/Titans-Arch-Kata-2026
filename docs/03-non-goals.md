@@ -36,15 +36,3 @@ To guarantee strict bounded context integrity and physical safety, the platform 
 | **Water Chemistry Setpoint Modification** | Living Collection | No cloud service can alter aquarium heater, pump, or dissolved oxygen life-support thresholds. | SCADA controllers run autonomous PID loops on air-gapped VLAN 10. |
 | **Biological Quarantine Override** | Living Collection | Guest Growth or Park Operations cannot reopen a closed exhibit or lift a veterinary quarantine. | Living Collection is sole capacity authority; quarantine clamps are immutable by external contexts. |
 | **Automated Staff Dispatch** | Park Operations | Systems cannot automatically order staff reassignments or alter labor contracts. | Park Ops surfaces recommendations; duty managers approve and radio staff manually. |
-
----
-
-## Deferred to Phase 2+
-
-| # | Deferred Item | Phase | Why Deferred |
-|---|---|---|---|
-| D-1 | **Annual pass management** | Phase 2 | Requires loyalty program integration and visit-frequency tracking not in initial scope |
-| D-2 | **Multi-language AI Concierge** | Phase 2 | Initial launch in English; multilingual prompts and response validation add complexity |
-| D-3 | **Merchandise & F&B integration** | Phase 3 | Ticketing domain focuses on admissions first; ancillary commerce is a separate integration |
-| D-4 | **Predictive maintenance for rides** | Phase 3 | Requires vibration sensor data collection over 6+ months for baseline |
-| D-5 | **AR/VR experiences** | Future | Interesting but not architecturally significant for the current mandate |

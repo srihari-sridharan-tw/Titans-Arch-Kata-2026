@@ -1,8 +1,5 @@
 # ADR-004: Standardized CloudEvents v1.0 Envelope on Kafka Event Backbone
 
-## Status
-Accepted
-
 ## Context
 The Von Digitalis Estates digital platform comprises four distinct bounded contexts: Ticketing & Access, Living Collection, Park Operations, and Guest Growth. These domains produce vastly different classes of data: financial transactions, ride queue sensor readings, animal telemetry, and guest recommendation clicks.
 
@@ -57,7 +54,3 @@ We mandate the **CloudEvents 1.0 Specification** (CNCF standard) as the universa
 ## Alternatives Considered & Rejected
 1. **Raw Unwrapped JSON Payloads**: Rejected due to lack of standard metadata, inability to route generically, and loss of distributed tracing context.
 2. **Apache Avro / Protocol Buffers without CloudEvents**: Rejected because human-readable CloudEvents JSON simplifies debugging and integration with edge IoT tooling, while Protobuf/Avro can still be wrapped in CloudEvents binary mode if needed.
-
-## Judging Criteria Addressed
-- **Criterion 1 (Architectural Soundness)**: Industry-standard decoupling pattern adhering to CNCF recommendations.
-- **Criterion 4 (Completeness)**: End-to-end event catalog connecting all domains.

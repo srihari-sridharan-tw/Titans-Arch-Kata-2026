@@ -29,13 +29,4 @@ All ADRs follow the **MADR (Markdown Architectural Decision Records)** format, p
 | [ADR-015](ADR-015-deterministic-faithfulness-verification.md) | Deterministic Faithfulness Check Layer for LLM Outputs | Cross-Cutting AI | Automated verification vs Blind trust in LLMs | AI Practicality, Soundness |
 | [ADR-016](ADR-016-three-vlan-segmentation-and-mtls-identity.md) | Strict Network Segmentation (VLAN 10/20, 30, 50) & mTLS Device Identity | Security / Network | Physical network segmentation vs Flat network | Security, Feasibility |
 
----
 
-## 2. Alignment with Judging Criteria
-
-- **C1: Architectural Soundness & Tradeoff Depth**: ADR-001, ADR-003, ADR-005, ADR-010, ADR-013, ADR-014.
-- **C2: AI Practicality & Operational Rigor**: ADR-002, ADR-007, ADR-008, ADR-009, ADR-011, ADR-012, ADR-015.
-- **C3: Production Deployability & Operational Feasibility**: ADR-001, ADR-003, ADR-004, ADR-009, ADR-013, ADR-016.
-- **C4: Completeness & Alignment with Business Requirements**: ADR-004, ADR-005, ADR-006, ADR-010.
-- **C5: Security, Safety, Ethics & Privacy**: ADR-003, ADR-005, ADR-007, ADR-010, ADR-014, ADR-016.
-- **C6: Clarity, Structure & Persuasiveness**: Documented in uniform MADR syntax with cross-hyperlinks.

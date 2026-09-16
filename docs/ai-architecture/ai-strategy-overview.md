@@ -62,7 +62,7 @@ One central estate-wide catalog, namespaced by domain. Every task is invoked via
 
 | Task ID | Tier | Runtime | Owner | Output | Guardrail / Fallback |
 |---|---|---|---|---|---|
-| `lc.census.school.density` | 2 | Edge (Jetson Orin) | Living Collection | $\hat{N}$, [ci_low, ci_high] | Double-blind human count on CI non-overlap |
+| `lc.census.school.density` | 2 | Edge (Jetson Orin) | Living Collection | Estimated count & confidence range | Double-blind keeper recount if confidence ranges diverge |
 | `lc.welfare.appetite.anomaly` | 2 | Edge / Cloud | Living Collection | Risk [0, 1] | Emits advisory claim; cannot actuate feeder |
 | `lc.welfare.behaviour.anomaly` | 2 | Edge (Jetson) | Living Collection | Anomaly + clip ID | Flags video clip on local node; zero cloud egress |
 | `lc.keeper.copilot.draft` | 3 | Cloud (SLM backup) | Living Collection | Markdown draft | Never auto-submits; clinical medication denylist |

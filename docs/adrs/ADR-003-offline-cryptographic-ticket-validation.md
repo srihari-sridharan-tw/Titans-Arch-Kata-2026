@@ -1,8 +1,5 @@
 # ADR-003: Offline Cryptographic Gate Validation via Ed25519 QR & Local Bloom Filters
 
-## Status
-Accepted
-
 ## Context
 During peak summer mornings, up to 15,000 visitors arrive at the Von Digitalis Estates within a 90-minute window. A 2-second delay per turnstile scan creates massive physical bottleneck queues spilling into the public parking lots and access roads. 
 
@@ -52,7 +49,3 @@ sequenceDiagram
 ## Alternatives Considered & Rejected
 1. **Central Database Online Lookups**: Rejected due to vulnerability to network outages and P99 latency spikes exceeding 1,500ms under load.
 2. **Symmetric HMAC Signatures**: Rejected because symmetric keys stored on edge turnstiles would allow an attacker extracting the key to forge valid admission tickets.
-
-## Judging Criteria Addressed
-- **Criterion 1 (Architectural Soundness)**: Mathematically grounded, high-throughput offline security pattern.
-- **Criterion 3 (Deployability & Operational Feasibility)**: Sub-50ms deterministic edge execution on inexpensive embedded hardware.

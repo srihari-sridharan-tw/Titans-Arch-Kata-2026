@@ -211,7 +211,7 @@ All events use CloudEvents 1.0 format with ULID `id` and PascalCase `.v1`:
 | `QueueJoined.v1` | **Park Ops** | `queueId`, `guestSessionId`, `rideId`, `partySize`, `enrolledAt`, `estimatedReturnTime` | Park Ops balances ride dispatch & queue lane throughput. |
 | `QueueCalled.v1` | **Park Ops** | `queueId`, `guestSessionId`, `rideId`, `calledAt`, `graceExpiresAt` | Park Ops summons guests to boarding platform. |
 | `QueueExpired.v1` | **Park Ops** | `queueId`, `guestSessionId`, `rideId`, `reason` | Park Ops adjusts real-time ride demand and throughput. |
-| `VisitRequested.v1` | Living Collection, Park Ops | `requestId`, `guestSessionId` \| `orderId`, `enclosureId`, `windowStart`, `windowEnd`, `partySize`, `origin` | Exhibit reservation request with `origin: in_park`; Ticketing publishes the identical event with `origin: pre_visit`. Guest Growth never grants the slot itself. |
+| `VisitRequested.v1` | Living Collection, Park Ops | `requestId`, `guestSessionId` / `orderId`, `enclosureId`, `windowStart`, `windowEnd`, `partySize`, `origin` | Exhibit reservation request with `origin: in_park`; Ticketing publishes the identical event with `origin: pre_visit`. Guest Growth never grants the slot itself. |
 | `FeedbackSubmitted.v1` | Park Ops (Analytics), Ticketing | `feedbackId`, `guestSessionId`, `rating1to10`, `questionnaireAnswers{}`, `frictionSignals{}` | Estate analytics & guest satisfaction loop. |
 | `ReturnVisitPropensity.v1` | Ticketing | `customerId`, `score`, `segments[]` | Ticketing personalized email/SMS offers (batch). |
 

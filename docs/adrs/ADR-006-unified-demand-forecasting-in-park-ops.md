@@ -1,8 +1,5 @@
 # ADR-006: Unified Multi-Signal Demand Forecasting in Park Operations
 
-## Status
-Accepted
-
 ## Context
 Demand prediction is wanted by three different parts of the estate, and each has a plausible claim to hosting it:
 - **Ticketing** needs attendance predictions to set prices and release ticket batches, and already holds presale data.
@@ -65,7 +62,3 @@ flowchart TD
 
 ## Alternatives Considered & Rejected
 1. **Forecasting hosted in Ticketing**: Rejected because Ticketing holds presales but not ride sensors, queue lengths, or weather.
-
-## Judging Criteria Addressed
-- **Criterion 1 (Architectural Soundness)**: Rigorous DDD bounded context definition and alignment of responsibility with authority.
-- **Criterion 4 (Completeness)**: Comprehensive multi-signal predictive intelligence across the estate.

@@ -74,37 +74,34 @@ sequenceDiagram
 
 ---
 
-## 2. Mathematical Formulations for Drift Detection
+## 2. Drift Detection & Statistical Quality Controls
 
-### A. Embedding Drift Detection (Semantic Covariate Shift)
+### A. Semantic Drift Detection (Tracking Topic & Question Shifts)
 
-To detect if guest queries or habitat visual frames are drifting from the golden distribution, we track the rolling centroid of query embeddings in 384-dimensional vector space.
-
-Let $B = \{\vec{e}_1, \dots, \vec{e}_M\}$ be the baseline golden embedding set with centroid:
-
-$$\vec{\mu}_B = \frac{1}{M} \sum_{i=1}^M \vec{e}_i$$
-
-Let $W_t = \{\vec{x}_1, \dots, \vec{x}_N\}$ be the sliding window of query embeddings over the last 1,000 requests. Its centroid is:
-
-$$\vec{\mu}_{W_t} = \frac{1}{N} \sum_{j=1}^N \vec{x}_j$$
-
-We measure the **Centroid Cosine Distance**:
-
-$$D_{\text{drift}}(B, W_t) = 1 - \frac{\vec{\mu}_B \cdot \vec{\mu}_{W_t}}{\|\vec{\mu}_B\|_2 \|\vec{\mu}_{W_t}\|_2}$$
-
-- **Threshold**: When $D_{\text{drift}} > 0.15$ for two consecutive sliding windows:
-  1. Automated notification dispatched to the ML Engineer on-call.
-  2. The window queries are persisted to the candidate retraining queue.
+To detect if guest queries or habitat visual frames are drifting from expected patterns, we track shifts in semantic vector embeddings:
+- **Baseline Average**: The central "topic center" representing typical, verified historical questions and FAQs.
+- **Recent Window Average**: The moving topic center calculated across the most recent 1,000 live guest queries.
+- **Semantic Distance in Simple Terms**:
+  ```text
+  Drift Distance = 1 - (Semantic Similarity between Baseline Average and Recent 1,000 Questions)
+  ```
+- **Action Thresholds**:
+  - When `Drift Distance > 0.15` across two consecutive windows (meaning guests are asking questions significantly different from established topics, e.g., during sudden ride disruptions or severe weather):
+    1. Dispatches an automated notification to the on-call ML engineer.
+    2. Automatically stores the anomalous queries into a retraining queue to refresh prompts, FAQs, and domain knowledge.
 
 ### B. Population Stability Index (PSI) for Numerical Tabular Models
 
-For the Park Operations multi-signal demand forecasting model (LightGBM):
+For the Park Operations multi-signal demand forecasting model (LightGBM), the system tracks how input data distributions (such as hourly visitor arrivals, weather temperatures, and ticket sales) compare to historical training data:
 
-$$\text{PSI} = \sum_{k=1}^K \Big( P_{\text{actual}}(k) - P_{\text{expected}}(k) \Big) \times \ln\left(\frac{P_{\text{actual}}(k)}{P_{\text{expected}}(k)}\right)$$
+```text
+PSI = Sum across all data buckets of:
+      (Actual % - Expected %) × Natural Log(Actual % / Expected %)
+```
 
-- $\text{PSI} < 0.10$: Stable; no action.
-- $0.10 \le \text{PSI} < 0.25$: Moderate drift; log warning and trigger shadow evaluation.
-- $\text{PSI} \ge 0.25$: Severe drift; automatic fallback to 14-day historical moving average.
+- **PSI < 0.10 (Stable)**: Minimal distribution shift; the forecasting engine operates normally with full automation.
+- **0.10 ≤ PSI < 0.25 (Moderate Drift)**: Noticeable change in visitor behavior or weather trends; logs an operational warning and runs shadow evaluations against alternate models.
+- **PSI ≥ 0.25 (Severe Drift)**: Significant distribution change (e.g., severe flash storm or unanticipated regional event); model predictions are deemed unreliable, triggering an automatic fallback to a 14-day historical moving average.
 
 ---
 
@@ -113,12 +110,12 @@ $$\text{PSI} = \sum_{k=1}^K \Big( P_{\text{actual}}(k) - P_{\text{expected}}(k) 
 In the Living Collection Amazonia piranha habitat, bio-fouling, algae blooms, and artificial lighting shifts degrade YOLO-nano confidence scores.
 
 ### Visual Quality Metrics Monitored at Edge:
-1. **Mean Pixel Intensity ($I_\mu$)**: Detects lighting failure ($I_\mu < 30$) or glare wash-out ($I_\mu > 230$).
-2. **Laplacian Variance ($\sigma_{\text{Lap}}^2$)**: Measures image sharpness and water turbidity:
-
-$$\sigma_{\text{Lap}}^2 = \text{Var}\big(\nabla^2 I\big)$$
-
-- If $\sigma_{\text{Lap}}^2 < 120$: Water turbidity is classified as **Severe**. The edge gateway triggers an automated backwash notification for the aquarium filtration subsystem and temporarily flags biomass count certainty as degraded.
+1. **Mean Pixel Intensity (Average Lighting)**: Detects habitat light fixture failure (average brightness < 30 on a 0–255 scale) or glare wash-out (brightness > 230).
+2. **Edge Sharpness Score (Water Clarity Check)**: Evaluates image clarity using edge blur detection (Laplacian variance):
+   ```text
+   Sharpness Score = Variance of image edge contrasts
+   ```
+   - **If Sharpness Score < 120**: Water turbidity is classified as **Severe** (murky water from algae or feeding debris). The edge node flags biomass estimates as degraded, locks feeding amounts to safe historical 7-day baselines, and alerts aquarium life support to trigger an automated filter backwash.
 
 ---
 
@@ -128,8 +125,8 @@ All telemetry is aggregated into a TimescaleDB instance and rendered in real-tim
 
 | Metric Panel | Target Baseline | Critical Alert Threshold | Auto-Remediation Triggered |
 |---|---|---|---|
-| **Semantic Cache Hit Ratio** | $\ge 60\%$ | $< 35\%$ over 1 hour | Alert on novel query clusters; expand FAQ prompts. |
-| **Average Cost per Session** | $\$0.04$ | $> \$0.12$ | Enforce prompt truncation; force Haiku over Sonnet. |
-| **Model Gateway P95 Latency** | $< 1,800\text{ ms}$ | $> 3,500\text{ ms}$ | Activate Tier 3 provider failover. |
-| **YOLO-nano Detection Confidence** | $\ge 0.88$ | $< 0.70$ | Flag camera lens maintenance; request manual visual census. |
-| **Daily Spend Accrual** | $\le \$250/\text{day}$ | $> \$500/\text{day}$ | Hard clamp on non-essential GenAI features. |
+| **Semantic Cache Hit Ratio** | ≥ 60% | < 35% over 1 hour | Alert on novel query clusters; expand FAQ prompts. |
+| **Average Cost per Session** | $0.04 | > $0.12 | Enforce prompt truncation; force Haiku over Sonnet. |
+| **Model Gateway P95 Latency** | < 1,800 ms | > 3,500 ms | Activate Tier 3 provider failover. |
+| **YOLO-nano Detection Confidence** | ≥ 0.88 | < 0.70 | Flag camera lens maintenance; request manual visual census. |
+| **Daily Spend Accrual** | ≤ $250 / day | > $500 / day | Hard clamp on non-essential GenAI features. |

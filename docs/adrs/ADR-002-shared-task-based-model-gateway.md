@@ -1,8 +1,5 @@
 # ADR-002: Shared Estate-Wide Task-Based Model Gateway with Domain Namespaces
 
-## Status
-Accepted
-
 ## Context
 All four bounded contexts require artificial intelligence capabilities:
 - **Ticketing & Access**: Multilingual guest concierge chatbot, support triage.
@@ -51,7 +48,3 @@ flowchart LR
 ## Alternatives Considered & Rejected
 1. **Isolated Gateway per Domain**: Rejected due to 4x infrastructure maintenance overhead and lack of estate-wide token pooling and global spending caps.
 2. **Direct Vendor SDK Calls from Domain Services**: Rejected due to tight vendor coupling, absence of centralized cost control, and security risks.
-
-## Judging Criteria Addressed
-- **Criterion 2 (AI Practicality & Operational Rigor)**: Centralized token budgets, failover cascades, and semantic caching.
-- **Criterion 4 (Completeness)**: Unified approach serving all 4 bounded contexts.

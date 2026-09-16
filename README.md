@@ -162,7 +162,7 @@ Component diagrams, sequences, and the shared legend live in [C4 Models](docs/ar
 | Context | Owns | Offline | Primary ADRs |
 |---|---|---|---|
 | **Ticketing & Access** | Commerce, credentials, gates, pricing engine, Concierge | Ed25519 QR + Bloom revocation; pre-authorized kiosk slabs | [ADR-003](docs/adrs/ADR-003-offline-cryptographic-ticket-validation.md), [ADR-014](docs/adrs/ADR-014-dynamic-pricing-hard-guardrails.md) |
-| **Living Collection** | Clinical/public twins, edge CV census, welfare, exhibit capacity | 72h NVMe, local siren, islanded MQTT | [ADR-009](docs/adrs/ADR-009-edge-cv-for-piranha-biomass-estimation.md), [ADR-010](docs/adrs/ADR-010-clinical-vs-public-digital-twin-split.md) |
+| **Living Collection** | Clinical/public twins, edge CV census, welfare, exhibit capacity | 72h NVMe, local siren, islanded MQTT | [ADR-009](docs/adrs/ADR-009-edge-cv-for-piranha-biomass-estimation.md), [ADR-010](docs/adrs/ADR-010-clinical-vs-public-digital-twin-split.md), [ADR-011](docs/adrs/ADR-011-keeper-disposition-as-ground-truth-labels.md) |
 | **Park Operations** | Ride dispatch, queue sensing, staff roster, demand forecast, analytics | Local queue counting; buffered ride-cycle events | [ADR-006](docs/adrs/ADR-006-unified-demand-forecasting-in-park-ops.md), [ADR-008](docs/adrs/ADR-008-numbers-first-narrative-second-reporting.md) |
 | **Guest Growth** | Companion PWA, virtual queue, Spot Saver, recommendations | LiteDB, bundled maps, BLE beacons | [ADR-005](docs/adrs/ADR-005-living-collection-as-sole-capacity-authority.md), [ADR-013](docs/adrs/ADR-013-modular-monolith-per-bounded-context.md) |
 
@@ -237,7 +237,7 @@ What “appropriate detail” means in this pack.
 | **Provider shutdown** | Primary LLM → Secondary LLM → local SLM (Mistral-7B) → static template. Each tier stays *functional*. | [Gateway](docs/ai-architecture/multi-model-gateway.md) |
 | **Model drift** | Per-zone forecast error. PSI > 0.25 → alert the owner. No auto-action. Override rate tracked separately. | [Cost & Drift](docs/ai-architecture/cost-and-drift-controls.md), [ADR-015](docs/adrs/ADR-015-deterministic-faithfulness-verification.md) |
 | **GenAI hallucination** | Commerce is sole price authority. Faithfulness check on every number and zone. Retry once, then raw data. | [ADR-015](docs/adrs/ADR-015-deterministic-faithfulness-verification.md), [ADR-008](docs/adrs/ADR-008-numbers-first-narrative-second-reporting.md) |
-| **Non-determinism** | Golden sets pre-deploy, canary, production sampling. Keeper disposition as live ground truth. Price-mismatch monitor. | [Eval](docs/ai-architecture/eval-and-validation.md), [ADR-012](docs/adrs/ADR-012-unified-ai-eval-pipeline-and-golden-sets.md) |
+| **Non-determinism** | Golden sets pre-deploy, canary, production sampling. Keeper disposition as live ground truth. Price-mismatch monitor. | [Eval](docs/ai-architecture/eval-and-validation.md), [ADR-011](docs/adrs/ADR-011-keeper-disposition-as-ground-truth-labels.md), [ADR-012](docs/adrs/ADR-012-unified-ai-eval-pipeline-and-golden-sets.md) |
 
 ---
 
@@ -282,10 +282,9 @@ Read in this order. Each stage assumes only what came before.
 | 18 | Cross-cutting | [Data Architecture](docs/cross-cutting/data-architecture.md) | CloudEvents, hot/warm/cold |
 | 19 | Cross-cutting | [Security & Threat Model](docs/cross-cutting/security-and-threat-model.md) | STRIDE, VLANs, LLM threats |
 | 20 | Cross-cutting | [Cost Model](docs/cross-cutting/cost-model.md) | BOM, OpEx, TCO |
-| 21 | Cross-cutting | [Phased Rollout](docs/cross-cutting/phased-rollout.md) | Three phases, go/no-go gates |
-| 22 | Evidence | [Quality Scenarios](docs/quality-scenarios.md) | Five falsifiable tests |
-| 23 | Evidence | [ADR Index](docs/adrs/README.md) | 16 decisions |
-| 24 | Evidence | [Diagram Suite](diagrams/README.md) | 9 Mermaid diagrams |
+| 21 | Evidence | [Quality Scenarios](docs/quality-scenarios.md) | Five falsifiable tests |
+| 22 | Evidence | [ADR Index](docs/adrs/README.md) | 16 decisions |
+| 23 | Evidence | [Diagram Suite](diagrams/README.md) | 9 Mermaid diagrams |
 
 **Short paths**
 
@@ -296,7 +295,7 @@ Read in this order. Each stage assumes only what came before.
 | **AI & providers** | [AI Strategy](docs/ai-architecture/ai-strategy-overview.md) → [Gateway](docs/ai-architecture/multi-model-gateway.md) → [Cost & Drift](docs/ai-architecture/cost-and-drift-controls.md) → [ADR-002](docs/adrs/ADR-002-shared-task-based-model-gateway.md) |
 | **AI validation** | [Eval](docs/ai-architecture/eval-and-validation.md) → [Fitness](docs/ai-architecture/fitness-functions.md) → [Quality Scenarios](docs/quality-scenarios.md) → [ADR-012](docs/adrs/ADR-012-unified-ai-eval-pipeline-and-golden-sets.md) |
 | **Safety & security** | [Security](docs/cross-cutting/security-and-threat-model.md) → [Non-Goals](docs/03-non-goals.md) → [ADR-016](docs/adrs/ADR-016-three-vlan-segmentation-and-mtls-identity.md) → [ADR-010](docs/adrs/ADR-010-clinical-vs-public-digital-twin-split.md) |
-| **Cost & delivery** | [Executive Summary](docs/00-executive-summary.md) → [Cost Model](docs/cross-cutting/cost-model.md) → [Phased Rollout](docs/cross-cutting/phased-rollout.md) → [ADR-014](docs/adrs/ADR-014-dynamic-pricing-hard-guardrails.md) |
+| **Cost & delivery** | [Executive Summary](docs/00-executive-summary.md) → [Cost Model](docs/cross-cutting/cost-model.md) → [ADR-014](docs/adrs/ADR-014-dynamic-pricing-hard-guardrails.md) |
 
 ---
 

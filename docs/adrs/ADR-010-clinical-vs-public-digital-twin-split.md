@@ -1,8 +1,5 @@
 # ADR-010: Dual-Schema Separation: Clinical Twin vs. Public Twin
 
-## Status
-Accepted
-
 ## Context
 The Living Collection domain is responsible for maintaining digital representations ("digital twins") of the estate's 200+ exotic animals. Two distinct stakeholder groups consume animal data with conflicting requirements:
 1. **Veterinary Doctors & Keepers**: Require granular clinical data (blood panels, surgical histories, pharmaceutical dosages, behavioral pathologies, exact cage access protocols, and breeding genetics). This data is highly sensitive, regulated under veterinary medicine privacy guidelines, and critical to animal life.
@@ -63,7 +60,3 @@ flowchart TD
 ## Alternatives Considered & Rejected
 1. **Single Unified Table with Row/Column-Level Security (RLS)**: Rejected because software-level RLS policies are vulnerable to SQL injection, ORM bugs, and accidental prompt leakages in unified RAG pipelines.
 2. **Manual Public Website Updates via CMS**: Rejected because live exhibit capacity and show timing require automated real-time synchronization with park realities.
-
-## Judging Criteria Addressed
-- **Criterion 1 (Architectural Soundness)**: Rigorous DDD separation of concerns and defense-in-depth isolation.
-- **Criterion 5 (Security, Safety, Ethics & Privacy)**: Absolute protection of sensitive clinical and containment security data.

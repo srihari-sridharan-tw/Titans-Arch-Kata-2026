@@ -59,7 +59,7 @@ Consolidated sizing across the **55 logical Zones** using the **6 cluster gatewa
 
 ## 3. What Sharing Buys (The Per-Domain Alternative, Priced)
 
-The natural alternative to the shared spine described in [Estate-Wide Invariants](../../README.md#estate-wide-architectural-invariants) is to let each bounded context own its own infrastructure — its own broker fleet, its own AI gateway, its own evaluation harness. That is a defensible design, and it is what the platform would cost:
+The natural alternative to the shared spine described in [Estate-Wide Invariants](../../README.md#estate-wide-invariants) is to let each bounded context own its own infrastructure — its own broker fleet, its own AI gateway, its own evaluation harness. That is a defensible design, and it is what the platform would cost:
 
 | Per-domain infrastructure the shared spine makes unnecessary | Cost of the alternative |
 |---|---|

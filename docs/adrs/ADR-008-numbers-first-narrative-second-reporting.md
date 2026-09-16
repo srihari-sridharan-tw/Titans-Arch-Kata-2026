@@ -1,8 +1,5 @@
 # ADR-008: Numbers-First, Narrative-Second Pattern for Operations & Financials
 
-## Status
-Accepted
-
 ## Context
 Estate operations supervisors, veterinary managers, and Countess Von Digitalis receive daily executive briefings summarizing complex operational metrics: ride uptime percentages, gate scan throughputs, crowd density peaks, food and beverage revenues, and animal welfare vital trends.
 
@@ -52,7 +49,3 @@ flowchart TD
 ## Alternatives Considered & Rejected
 1. **Direct LLM End-to-End Reporting (Prompt-to-Report)**: Rejected because LLMs are non-deterministic and prone to silent numerical errors in production reporting.
 2. **Static Template Text with Variable Interpolation**: Rejected because rigid template strings lack natural language richness and fail to synthesize cross-cutting contextual insights across multiple anomalies.
-
-## Judging Criteria Addressed
-- **Criterion 2 (AI Practicality & Operational Rigor)**: Addresses LLM numerical hallucinations directly with robust software engineering patterns.
-- **Criterion 1 (Architectural Soundness)**: Clear boundary between deterministic data layers and probabilistic language models.

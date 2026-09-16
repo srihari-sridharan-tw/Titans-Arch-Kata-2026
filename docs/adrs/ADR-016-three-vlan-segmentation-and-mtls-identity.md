@@ -1,8 +1,5 @@
 # ADR-016: Strict Network Segmentation (VLAN 10/20, 30, 50) & mTLS Device Identity
 
-## Status
-Accepted
-
 ## Context
 The Von Digitalis Estates digital platform bridges physical life-safety systems (dangerous animal enclosure locks, ride dispatch controls), enterprise operations (turnstiles, ticketing POS, IoT telemetry, keeper tablets), administrative systems (veterinary workstations, payroll), and untrusted public guest devices (15,000 visitors accessing estate Wi-Fi).
 
@@ -87,7 +84,3 @@ flowchart TD
 ## Alternatives Considered & Rejected
 1. **Flat Network with Software Firewall Rules**: Rejected due to high human configuration error risk and lack of hardware-level isolation.
 2. **Pre-Shared WPA2 Keys for Staff Tablets**: Rejected because pre-shared keys are easily shared, stolen, or leaked by departing temporary seasonal staff.
-
-## Judging Criteria Addressed
-- **Criterion 5 (Security, Safety, Ethics & Privacy)**: Enterprise-grade zero-trust physical and cryptographic defense-in-depth.
-- **Criterion 3 (Deployability & Operational Feasibility)**: Industry-standard 802.1X and mTLS architectures.

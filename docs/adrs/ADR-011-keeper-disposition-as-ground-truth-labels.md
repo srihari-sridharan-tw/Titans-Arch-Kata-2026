@@ -1,8 +1,5 @@
 # ADR-011: Keeper Dispositions as Ground-Truth Training Labels
 
-## Status
-Accepted
-
 ## Context
 In the Living Collection and Park Operations domains, AI and computer vision models generate continuous predictions:
 - Piranha biomass estimates and schooling dispersion anomaly alerts.
@@ -58,7 +55,3 @@ sequenceDiagram
 ## Alternatives Considered & Rejected
 1. **Unsupervised Self-Training / Auto-Labeling**: Rejected because feedback loops in biological models can lead to dangerous behavioral misinterpretations and animal harm.
 2. **Third-Party Crowdsourced Annotation**: Rejected because general annotators lack ichthyological and zoological expertise to diagnose subtle animal behaviors.
-
-## Judging Criteria Addressed
-- **Criterion 2 (AI Practicality & Operational Rigor)**: Elegant human-in-the-loop continuous improvement loop.
-- **Criterion 3 (Production Deployability & Operational Feasibility)**: Sustainable, low-cost operational lifecycle.

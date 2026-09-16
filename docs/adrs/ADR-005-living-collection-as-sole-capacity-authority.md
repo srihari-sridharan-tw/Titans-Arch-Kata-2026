@@ -1,8 +1,5 @@
 # ADR-005: Living Collection as Sole Authority for Exhibit Capacity (Unified Spot Saver)
 
-## Status
-Accepted
-
 ## Context
 The estate features two competing demands for virtual queuing and capacity allocation via the **Spot Saver** system:
 1. **Mechanical Rides (Park Operations / Guest Growth)**: Goal is throughput maximization, revenue generation, and minimizing guest frustration.
@@ -60,7 +57,3 @@ sequenceDiagram
 ## Alternatives Considered & Rejected
 1. **Central Optimization Engine in Park Operations**: Rejected because Park Operations prioritizes mechanical throughput and guest flow, creating an inherent conflict of interest with animal welfare.
 2. **Guest Growth Ownership with Advisory Vet Limits**: Rejected because advisory limits can be bypassed during peak crowd surges to alleviate ride queue pressures.
-
-## Judging Criteria Addressed
-- **Criterion 1 (Architectural Soundness)**: Unambiguous domain boundaries and authority alignment.
-- **Criterion 5 (Safety, Ethics & Regulatory Compliance)**: Ethical prioritization of living animal welfare over commercial throughput.

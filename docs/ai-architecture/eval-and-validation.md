@@ -131,23 +131,24 @@ flowchart LR
 ### 1. Ticketing Adapter (`tk.pricing.ground_truth`)
 - **Evaluated Task**: `tk.pricing.dynamic`
 - **Ground-Truth Source**: Financial commerce ledger and regulatory ticket price schedule.
-- **Assertion**: Ensures AI dynamic pricing recommendations respect the hard pricing envelope:
-  $$\text{Floor } (€25.00) \le P_{\text{advisory}} \le \text{Ceiling } (€85.00) \quad \text{and} \quad |\Delta P_{\text{hour}}| \le 0.10 \times P_{\text{current}}$$
+- **Assertion**: Ensures AI dynamic pricing recommendations strictly adhere to approved price boundaries:
+  - **Price Floor & Ceiling**: Advisory price must stay within estate limits (€25.00 floor to €85.00 ceiling).
+  - **Rate of Change Limit**: Maximum allowed price adjustment is capped at 10% per hour.
 - **Failure Action**: Hard clamp to nearest allowed boundary; incident logged for yield management review.
 
 ### 2. Living Collection Adapter (`lc.welfare.ground_truth`)
 - **Evaluated Task**: `lc.school.anomaly` & `lc.keeper.copilot`
 - **Ground-Truth Source**: Veterinary electronic medical records (EMR) and keeper disposition logs.
-- **Assertion**: Validates whether detected acoustic spikes or dispersion anomalies corresponded to actionable clinical issues or routine feeding agitation. Tracks false positive rates (FPR):
-  $$\text{Target FPR} < 5\% \quad (\text{prevents keeper alarm fatigue})$$
+- **Assertion**: Validates whether detected acoustic spikes or schooling anomalies corresponded to genuine clinical issues rather than routine feeding activity. Maintains a strict false alarm limit:
+  - **Target False Alarm Rate**: Less than 5% false positive rate to protect keepers from alarm fatigue.
 - **Failure Action**: Flags anomalous event sequences for weekly retraining and sensitivity adjustment.
 
 ### 3. Park Operations Adapter (`po.forecast.ground_truth`)
 - **Evaluated Task**: `po.crowd.forecast` & `po.wait_time.predict`
 - **Ground-Truth Source**: Actual end-of-day turnstile ingress totals and ride dispatch telemetry.
-- **Assertion**: Computes rolling Mean Absolute Percentage Error (MAPE) and Root Mean Squared Error (RMSE):
-  $$\text{MAPE} = \frac{100\%}{n} \sum_{t=1}^{n} \left| \frac{A_t - F_t}{A_t} \right| \le 15\% \text{ (Tactical 15m/2h)}$$
-- **Failure Action**: If tactical MAPE exceeds 15% or Population Stability Index (PSI) exceeds 0.25, falls back to the 14-day rolling moving average.
+- **Assertion**: Evaluates prediction accuracy against real physical gate admissions:
+  - **Tactical Accuracy Target**: Average percentage error (MAPE) must remain below 15% across short-term horizons (15-minute and 2-hour forecasts).
+- **Failure Action**: If tactical error exceeds 15% or Population Stability Index (PSI) exceeds 0.25, falls back to the 14-day rolling moving average.
 
 ### 4. Guest Growth Adapter (`gr.itinerary.ground_truth`)
 - **Evaluated Task**: `gr.itinerary.generate` & `gr.chat.concierge`
@@ -167,32 +168,34 @@ One runner, one canary path, and one drift monitor — but three things stay wit
 
 ---
 
-## 3. LLM-as-a-Judge Scoring Rubrics & Mathematical Formulations (Tier 3 Evaluation)
+## 3. LLM-as-a-Judge Quality Rubrics (Tier 3 Evaluation)
 
-To achieve objective, automated scoring on open-ended conversational text, out-of-band evaluation tasks utilize an isolated, high-parameter frontier model (e.g., Claude 3.5 Sonnet / GPT-4o) with strictly typed outputs (0.0 to 1.0).
+To achieve objective, automated scoring on open-ended conversational text, out-of-band evaluation tasks utilize an isolated, high-parameter frontier model (e.g., Claude 3.5 Sonnet / GPT-4o) with strictly typed numeric scores (0.0 to 1.0).
 
 ### Evaluation Metrics
 
-#### 1. Faithfulness Score ($S_{\text{faith}}$)
-Measures whether every claim in the generated text $G$ can be directly inferred from the retrieved source context $C$.
+#### 1. Faithfulness Score (Truthfulness to Ground Truth)
+Measures whether every factual claim made in the AI-generated answer is directly supported by retrieved reference documents:
 
-$$S_{\text{faith}} = \frac{|\{c \in \text{Claims}(G) \mid \text{Entailed}(C, c)\}|}{|\text{Claims}(G)|}$$
+```text
+Faithfulness Score = (Count of Claims Backed by Reference Context) / (Total Claims Made)
+```
 
-- **Threshold for Release**: $S_{\text{faith}} = 1.0$ (Strict 0% tolerance for ungrounded claims in Ticketing pricing and Keeper SOPs).
+- **Threshold for Release**: 1.0 (Strict 100% ground-truth backing with zero tolerance for ungrounded claims in Ticketing pricing and Keeper clinical SOPs).
 
-#### 2. Context Relevance Score ($S_{\text{rel}}$)
-Measures the proportion of the retrieved context $C$ that was directly required to address the user query $Q$.
+#### 2. Context Relevance Score (Signal-to-Noise Ratio)
+Measures how much of the retrieved text passed to the model was actually needed to answer the user's question:
 
-$$S_{\text{rel}} = \frac{|\{s \in \text{Sentences}(C) \mid \text{Relevant}(Q, s)\}|}{|\text{Sentences}(C)|}$$
+```text
+Context Relevance Score = (Relevant Sentences Used) / (Total Sentences Retrieved)
+```
 
-- **Target**: $S_{\text{rel}} \ge 0.85$ (Ensures low token bloat and reduces distracting context).
+- **Target**: ≥ 0.85 (Ensures low token costs and prevents extraneous, distracting context).
 
-#### 3. Answer Relevancy ($S_{\text{ans}}$)
-Measures how directly the answer $G$ answers the prompt $Q$, assessed via reverse question generation:
-
-$$S_{\text{ans}} = \frac{1}{N} \sum_{i=1}^{N} \cos(\vec{E}(Q), \vec{E}(Q_i'))$$
-
-where $Q_i'$ are questions generated by the judge LLM given only the generated response $G$, and $\vec{E}$ is an embedding model.
+#### 3. Answer Relevancy Score (Directness of Response)
+Measures whether the AI directly answered what the user asked without diverging or answering an unintended question:
+- **Evaluation Mechanism**: The judge LLM generates questions based solely on the AI's answer, and computes semantic alignment against the user's original query.
+- **Target**: ≥ 0.90 semantic alignment with the original user prompt.
 
 ---
 
@@ -201,13 +204,15 @@ where $Q_i'$ are questions generated by the judge LLM given only the generated r
 For operational and shift briefing summaries (`ops.shift.briefing`), narrative text must not distort underlying telemetry numbers. 
 
 ### Faithfulness Extraction Algorithm
-1. **Regex Numeric Extraction**: Parse all numeric entities, percentages, currency amounts, and time values from the source telemetry payload $D$.
-2. **Response Entity Extraction**: Parse all numeric entities from the generated narrative $G$.
-3. **Set Difference Verification**: Let $N_G$ be the set of numeric entities in $G$ and $N_D$ be the set of numeric entities in $D$.
-   
-   $$\text{Violation} \iff \exists n \in N_G \text{ such that } n \notin N_D \cup \text{DerivedUnits}(N_D)$$
+1. **Source Fact Extraction**: Parse all numeric entities, percentages, currency amounts, and time values from the source telemetry payload.
+2. **Response Fact Extraction**: Parse all numeric entities from the AI-generated draft narrative.
+3. **Verification Check**:
+   ```text
+   If ANY number or metric in the AI text does NOT match the source telemetry (or an allowed unit conversion):
+   --> Violation Detected: Discard the AI narrative immediately
+   ```
 
-If any extracted number in the generated response did not originate in the telemetry payload or an allowed unit conversion, the response is discarded, and the raw markdown table (Numbers-First) is displayed directly without the AI narrative.
+If any extracted number in the generated response did not originate directly in the telemetry payload or an allowed unit conversion (such as converting 90 minutes into 1.5 hours), the response is discarded, and the raw markdown table (Numbers-First) is displayed directly without the AI narrative.
 
 ```python
 import re
