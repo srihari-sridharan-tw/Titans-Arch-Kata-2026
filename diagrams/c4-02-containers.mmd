@@ -1,0 +1,65 @@
+graph TB
+    classDef client fill:#08427b,stroke:#073b6f,color:#ffffff;
+    classDef backend fill:#1168bd,stroke:#0b4884,color:#ffffff;
+    classDef edge fill:#2e7d32,stroke:#1b5e20,color:#ffffff;
+    classDef ai fill:#6a1b9a,stroke:#4a148c,color:#ffffff;
+    classDef store fill:#f57c00,stroke:#e65100,color:#ffffff;
+
+    subgraph User Clients & Interfaces
+        PWA["📱 Guest Companion PWA<br/>[React / TypeScript / Offline Storage]"]:::client
+        KeeperUI["📲 Keeper Handheld App<br/>[React Native / WPA3-Enterprise]"]:::client
+        OpsDashboard["🖥️ Estate Command Dashboard<br/>[React / Numbers-First UI]"]:::client
+    end
+
+    subgraph "Edge Layer (55 Logical Zones across 5 Biomes)"
+        Turnstiles["🚪 Turnstiles & Gates<br/>[Raspberry Pi CM4 + TPM 2.0 / Ed25519]"]:::edge
+        Jetson["📷 Zone Edge CV Nodes<br/>[NVIDIA Jetson Orin Nano / YOLO-nano INT8]"]:::edge
+        ZoneBroker["📡 6 Cluster Gateway Pairs<br/>[Mosquitto/EMQX Active-Passive + 72h NVMe]"]:::edge
+    end
+
+    subgraph "Core Platform Backend (Modular Monoliths)"
+        Ticketing["🎟️ Ticketing & Access Monolith<br/>[Go / Hexagonal Architecture]"]:::backend
+        Living["🐾 Living Collection Monolith<br/>[Python / FastAPI]"]:::backend
+        ParkOps["🎡 Park Operations Monolith<br/>[Go / Event-Driven]"]:::backend
+        GuestGrowth["✨ Guest Growth Monolith<br/>[Node.js / TypeScript]"]:::backend
+    end
+
+    subgraph AI Foundation Layer
+        ModelGW["🧠 Shared Multi-Model Gateway<br/>[LiteLLM / Custom 4-Tier Cascade]"]:::ai
+    end
+
+    subgraph Persistent Storage & Event Backbone
+        Kafka["📨 Apache Kafka Backbone<br/>[CloudEvents 1.0 / ULID Keys]"]:::store
+        Postgres["🐘 Primary Relational DBs<br/>[PostgreSQL 16 - Multi-Tenant DBs]"]:::store
+        Timescale["⏱️ Time-Series & Telemetry<br/>[TimescaleDB]"]:::store
+        RedisStore["⚡ Distributed Caches<br/>[Redis Cluster / Bloom Filters]"]:::store
+    end
+
+    %% Client Connections
+    PWA -->|HTTPS / WSS| GuestGrowth
+    PWA -->|HTTPS| Ticketing
+    KeeperUI -->|mTLS / HTTPS| Living
+    OpsDashboard -->|HTTPS| ParkOps
+
+    %% Edge to Backend
+    Turnstiles -->|MQTT 5 QoS 1| ZoneBroker
+    Jetson -->|MQTT 5 QoS 1| ZoneBroker
+    ZoneBroker -->|mTLS WAN Bridge| Kafka
+
+    %% Monoliths to Kafka & DBs
+    Ticketing -->|Produces/Consumes CloudEvents| Kafka
+    Living -->|Produces/Consumes CloudEvents| Kafka
+    ParkOps -->|Produces/Consumes CloudEvents| Kafka
+    GuestGrowth -->|Produces/Consumes CloudEvents| Kafka
+
+    Ticketing --> Postgres
+    Living --> Postgres
+    Living --> Timescale
+    ParkOps --> Timescale
+    GuestGrowth --> RedisStore
+
+    %% AI Integrations (Namespaced Task IDs)
+    Ticketing -->|Task: tk.pricing.dynamic| ModelGW
+    Living -->|Task: lc.keeper.copilot| ModelGW
+    ParkOps -->|Task: po.ops.briefing| ModelGW
+    GuestGrowth -->|Task: gr.chat.concierge| ModelGW

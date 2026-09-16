@@ -1,0 +1,40 @@
+graph TB
+    classDef comp fill:#1168bd,stroke:#0b4884,color:#ffffff;
+    classDef edge fill:#2e7d32,stroke:#1b5e20,color:#ffffff;
+    classDef ai fill:#6a1b9a,stroke:#4a148c,color:#ffffff;
+    classDef store fill:#f57c00,stroke:#e65100,color:#ffffff;
+
+    subgraph Ticketing & Access Modular Monolith
+        Catalog["📦 Product Catalog & Inventory<br/>[Domain Component]"]:::comp
+        Pricing["💰 Dynamic Pricing Engine<br/>[Hard ±30% Guardrail Clamp]"]:::comp
+        Order["🛒 Order & Checkout Manager<br/>[Saga / State Machine]"]:::comp
+        Signer["🔑 Cryptographic Ticket Signer<br/>[Ed25519 Hardware Key Issuer]"]:::comp
+        Concierge["🤖 AI Guest Concierge<br/>[Task: tk.ticket.concierge]"]:::ai
+    end
+
+    subgraph "Turnstile Edge Controller (Zone 01-04)"
+        Validator["🛡️ Offline Ed25519 Validator<br/>[Public Key In-Memory Math]"]:::edge
+        LocalBloom["🌸 In-Memory Bloom Filter<br/>[Local Double-Scan Detector]"]:::edge
+        GateRelay["⚡ Physical Turnstile Relay<br/>[24V Unlocking Solenoid]"]:::edge
+    end
+
+    subgraph Infrastructure & External
+        TicketDB[(PostgreSQL DB<br/>Orders, Pass Keys, Catalog)]:::store
+        HSM["🔐 Cloud Hardware Security Module<br/>[Ed25519 Master Private Key]"]:::store
+        Gateway["🧠 Multi-Model Gateway"]:::ai
+        Kafka["📨 Apache Kafka"]:::store
+    end
+
+    Order --> Catalog
+    Order --> Pricing
+    Order --> TicketDB
+    Order --> Signer
+    Signer --> HSM
+
+    Concierge --> Gateway
+    Concierge -.->|Read-Only Price Check| Pricing
+
+    Signer -->|Issues Signed QR| Validator
+    Validator --> LocalBloom
+    Validator --> GateRelay
+    Validator -->|Publishes VisitorEntered.v1| Kafka

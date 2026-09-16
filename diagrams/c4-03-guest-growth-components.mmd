@@ -1,0 +1,36 @@
+graph TB
+    classDef comp fill:#1168bd,stroke:#0b4884,color:#ffffff;
+    classDef client fill:#08427b,stroke:#073b6f,color:#ffffff;
+    classDef ai fill:#6a1b9a,stroke:#4a148c,color:#ffffff;
+    classDef store fill:#f57c00,stroke:#e65100,color:#ffffff;
+
+    subgraph Guest Growth Modular Monolith
+        SpotSaverClient["🎟️ Spot Saver Booking Service<br/>[Virtual Queue Client]"]:::comp
+        RecEngine["🧭 Anti-Congestion Recommender<br/>[Contextual Routing Engine]"]:::ai
+        NudgeEngine["🔔 Proactive Nudge Dispatcher<br/>[Event-Driven Push Engine]"]:::comp
+        ItineraryService["🗺️ Dynamic Itinerary Planner<br/>[Personalized Estate Day Plan]"]:::comp
+    end
+
+    subgraph Client Application
+        PWA["📱 Guest Companion PWA<br/>[React / Offline Service Worker]"]:::client
+    end
+
+    subgraph Storage & External Services
+        Redis[(Redis Cluster<br/>Live Guest Sessions & Queues)]:::store
+        ModelGW["🧠 Multi-Model Gateway"]:::ai
+        LivingCap["🏛️ Living Collection Capacity Authority"]:::comp
+        ParkWait["🎢 Park Ops Wait Time Stream"]:::comp
+    end
+
+    PWA -->|HTTPS / WSS| SpotSaverClient
+    PWA -->|HTTPS| RecEngine
+    PWA -->|HTTPS| ItineraryService
+
+    SpotSaverClient --> Redis
+    SpotSaverClient --> LivingCap
+
+    RecEngine --> ParkWait
+    RecEngine --> ModelGW
+
+    NudgeEngine --> Redis
+    NudgeEngine -->|Push Notifications| PWA

@@ -1,0 +1,37 @@
+graph TB
+    classDef comp fill:#1168bd,stroke:#0b4884,color:#ffffff;
+    classDef edge fill:#2e7d32,stroke:#1b5e20,color:#ffffff;
+    classDef ai fill:#6a1b9a,stroke:#4a148c,color:#ffffff;
+    classDef store fill:#f57c00,stroke:#e65100,color:#ffffff;
+
+    subgraph POMono["Park Operations Modular Monolith"]
+        RideOps["🎢 Ride Operations Engine<br/>[Throughput & Dispatch Tracking]"]:::comp
+        ForecastEngine["📈 Two-Horizon Demand Forecaster<br/>[LightGBM: 15m/2h Tactical & 14d Strategic]"]:::comp
+        RosterManager["👥 Staff Roster & Deployment<br/>[Automated Shift Allocations]"]:::comp
+        BriefingEngine["📝 Shift Briefing Generator<br/>[Numbers-First Narrative Creator]"]:::ai
+        FaithfulnessGate["🔍 Deterministic Faithfulness Gate<br/>[ADR-015 Hallucination Blocker]"]:::ai
+    end
+
+    subgraph RideEdge["Ride & Zone Edge Sensors — VLAN 10/20"]
+        QueueCams["📷 Queue Vision Counters<br/>[Optical Queue Depth · Operations VLAN]"]:::edge
+        RidePLC["⚙️ Ride Dispatch Sensors<br/>[Cycle Times & Status Relays]"]:::edge
+    end
+
+    subgraph Platform["Storage & Platform"]
+        Timescale[(TimescaleDB<br/>Wait Times & Ride Telemetry)]:::store
+        Postgres[(PostgreSQL<br/>Staff Schedules & Ride Assets)]:::store
+        ModelGW["🧠 Multi-Model Gateway"]:::ai
+    end
+
+    QueueCams -->|MQTT 5| RideOps
+    RidePLC -->|MQTT 5| RideOps
+
+    RideOps --> Timescale
+    ForecastEngine --> Timescale
+    ForecastEngine --> Postgres
+    ForecastEngine --> RosterManager
+
+    BriefingEngine --> Timescale
+    BriefingEngine --> ModelGW
+    BriefingEngine --> FaithfulnessGate
+    FaithfulnessGate -->|Audited Briefing| Postgres

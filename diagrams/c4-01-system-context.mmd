@@ -1,0 +1,26 @@
+graph TB
+    classDef person fill:#08427b,stroke:#073b6f,color:#ffffff;
+    classDef platform fill:#1168bd,stroke:#0b4884,color:#ffffff;
+    classDef external fill:#999999,stroke:#666666,color:#ffffff;
+
+    Guest["👤 Guest<br/>(5,000–15,000 / day)"]:::person
+    Keeper["🧑‍🔬 Veterinary Keeper<br/>(Animal Welfare & Care)"]:::person
+    RideOp["👷 Ride Operator<br/>(Attraction Operations)"]:::person
+    Executive["👸 Countess & Executives<br/>(Estate Leadership)"]:::person
+
+    Platform["🏰 Von Digitalis Estates Platform<br/>[Software System]<br/>Orchestrates Ticketing, Wildlife Welfare, Ride Operations, Virtual Queuing & Estate AI"]:::platform
+
+    Payment["💳 Payment Gateway<br/>[External System]<br/>PCI-DSS Compliant Card Processor"]:::external
+    Weather["🌦️ Meteorological Radar API<br/>[External System]<br/>Live Rainfall & Temp Telemetry"]:::external
+    CloudAI["🧠 Frontier Cloud LLM Providers<br/>[External System]<br/>Anthropic / OpenAI Foundation Models"]:::external
+    Wallets["📱 Apple / Google Wallet<br/>[External System]<br/>PassKit Push Services"]:::external
+
+    Guest -->|Purchases tickets, views maps, books virtual queues| Platform
+    Keeper -->|Logs clinical records, receives AI welfare alerts| Platform
+    RideOp -->|Receives shift briefings, reports ride status| Platform
+    Executive -->|Reviews numbers-first operational briefings| Platform
+
+    Platform -->|Authorizes transactions| Payment
+    Platform -->|Ingests forecast data for demand prediction| Weather
+    Platform -->|Dispatches task-based inference requests| CloudAI
+    Platform -->|Pushes signed admission passes| Wallets

@@ -1,0 +1,53 @@
+graph TB
+    classDef scada fill:#b71c1c,stroke:#7f0000,color:#ffffff;
+    classDef vlan10_20 fill:#2e7d32,stroke:#1b5e20,color:#ffffff;
+    classDef vlan30 fill:#00695c,stroke:#004d40,color:#ffffff;
+    classDef vlan50 fill:#0d47a1,stroke:#002171,color:#ffffff;
+    classDef gateway fill:#f57c00,stroke:#e65100,color:#ffffff;
+    classDef cloud fill:#455a64,stroke:#263238,color:#ffffff;
+
+    subgraph ClusterTopology["📍 Edge Topology: 6 Physical Cluster Gateway Pairs Serving 55 Logical Zones"]
+        subgraph SCADA["🔒 Life-Safety & Enclosure Control (Hardware Isolated)"]
+            Interlock["Magnetic Habitat Locks / Solenoids"]:::scada
+            SafetyPLC["Siemens S7 Safety PLCs / Relays"]:::scada
+            DO2Sensor["Life Support DO2 & Ammonia Alarms"]:::scada
+        end
+
+        subgraph VLAN10_20["🛡️ VLAN 10/20: Operations & IoT Telemetry (mTLS 802.1X)"]
+            Switch["Managed Ruggedized L3 PoE+ Switch"]:::gateway
+            ClusterPair["Cluster Gateway Pair (Active/Passive VRRP)<br/>Dual Intel N100 / EMQX / 1TB NVMe (72h Buffer)"]:::vlan10_20
+            Jetson["NVIDIA Jetson Orin Nano<br/>(Edge CV / YOLO-nano INT8)"]:::vlan10_20
+            Turnstile["Offline Turnstile Gate Controller<br/>(Raspberry Pi CM4 + TPM 2.0 / Ed25519)"]:::vlan10_20
+            Sensors["55 Logical Zone Environmental Sensors"]:::vlan10_20
+        end
+
+        subgraph VLAN30["👔 VLAN 30: Staff & Operations (WPA3-Enterprise)"]
+            KeeperTablet["Keeper Handheld Tablet<br/>(WPA3-Enterprise / 802.1X)"]:::vlan30
+            VetStation["Veterinary Clinical Workstation"]:::vlan30
+        end
+
+        subgraph VLAN50["🌐 VLAN 50: Guest DMZ (Untrusted Public Subnet)"]
+            GuestAP["High-Density Wi-Fi 6 AP<br/>(Client-to-Client Isolation)"]:::vlan50
+            GuestPhone["Guest Smartphone (Companion PWA)"]:::vlan50
+        end
+    end
+
+    subgraph CloudInfra["☁️ Cloud Platform (Multi-AZ)"]
+        Kafka["Apache Kafka Cloud Backbone"]:::cloud
+        ModelGW["Multi-Model AI Gateway"]:::cloud
+    end
+
+    %% Wiring & Data Flow
+    SCADA -->|One-Way Optical Hardware Data Diode| Switch
+    Sensors -->|MQTT mTLS| ClusterPair
+    Jetson -->|RTSP / PoE INT8 Inferences| ClusterPair
+    Turnstile -->|Ethernet 802.1X mTLS| ClusterPair
+    KeeperTablet -->|WPA3 / L3 Firewall ACL| Switch
+    VetStation -->|L3 Firewall ACL| Switch
+    Switch --> ClusterPair
+
+    GuestPhone --> GuestAP
+    GuestAP -->|"Direct Outbound Internet Only (Zero Internal Access)"| Internet["Public Internet Egress"]:::cloud
+
+    ClusterPair -->|WireGuard mTLS VPN over Fiber Mesh| Kafka
+    ClusterPair -.->|72h Local NVMe Buffer during WAN Blackout| ClusterPair

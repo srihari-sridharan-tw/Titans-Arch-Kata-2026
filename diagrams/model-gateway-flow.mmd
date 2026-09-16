@@ -1,0 +1,58 @@
+sequenceDiagram
+    autonumber
+    participant App as Domain Client (e.g. Concierge)
+    participant GW as Model Gateway Router
+    participant Cache as Redis Semantic Cache
+    participant Guard as Llama-Guard 3 Filter
+    participant P1 as Tier 1: Cloud Primary (Claude 3.5)
+    participant P2 as Tier 2: Cloud Secondary (GPT-4o-mini)
+    participant P3 as Tier 3: Local SLM (Mistral-7B)
+    participant P4 as Tier 4: Deterministic Fallback
+
+    App->>GW: POST /v1/tasks/gr.chat.concierge<br/>{query, session_id, budget_cents}
+    
+    rect rgb(240, 248, 255)
+        Note over GW,Cache: 1. Semantic Cache & Quota Verification
+        GW->>GW: Check Session Spend (Limit: $0.15)
+        GW->>Cache: KNN Cosine Lookup (Vector Embedding)
+        alt Cache Hit (Cosine >= 0.96)
+            Cache-->>GW: Return Cached Response
+            GW-->>App: 200 OK (Latency: 15ms, Cost: $0.00)
+        end
+    end
+
+    rect rgb(255, 250, 240)
+        Note over GW,Guard: 2. Inbound Guardrail & Sanitization
+        GW->>Guard: Validate Input Prompt
+        alt Prompt Injection / Toxicity Detected
+            Guard-->>GW: REJECT (Safety Violation)
+            GW-->>App: 400 Bad Request (Sanitized Error)
+        end
+    end
+
+    rect rgb(245, 255, 245)
+        Note over GW,P4: 3. 4-Tier Resilience & Failover Cascade
+        GW->>P1: Request Inference (Timeout: 2500ms)
+        alt P1 Success
+            P1-->>GW: Generated Text Payload
+        else P1 Timeout or 5xx HTTP Error
+            Note over GW: Circuit Breaker Trips (P1 Degraded)
+            GW->>P2: Fallback to Tier 2 (OpenAI GPT-4o-mini)
+            alt P2 Success
+                P2-->>GW: Generated Text Payload
+            else P2 Network Partition / Cloud Outage
+                Note over GW: Cloud WAN Severed -> Route On-Premise
+                GW->>P3: Route to Local Mistral-7B (Estate Edge Cluster)
+                alt P3 Success
+                    P3-->>GW: Generated Local Text Payload
+                else P3 Saturated / Compute Exhausted
+                    Note over GW: Final Safety Net
+                    GW->>P4: Execute Static Deterministic FAQ Template
+                    P4-->>GW: Deterministic Verified Content
+                end
+            end
+        end
+    end
+
+    GW->>GW: Update Token Quotas & Telemetry Metrics
+    GW-->>App: 200 OK {response_text, execution_tier, latency_ms}

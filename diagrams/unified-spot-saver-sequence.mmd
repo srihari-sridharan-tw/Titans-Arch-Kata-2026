@@ -1,0 +1,40 @@
+sequenceDiagram
+    autonumber
+    actor Guest as Guest Companion PWA
+    participant GG as Guest Growth (Spot Saver Client)
+    participant Kafka as CloudEvents Kafka Backbone
+    participant LC as Living Collection (Sole Capacity Authority)
+    participant Sensors as Enclosure Bio-Sensors (VLAN 10/20)
+    participant PO as Park Operations (Routing / Wait Times)
+
+    Note over LC,Sensors: Continuous Biological Welfare Monitoring
+    Sensors->>LC: Water DO2 drops / Ambient Noise Spikes (Acoustic Stress)
+    Note over LC: Biological Welfare Engine evaluates thresholds
+    LC->>LC: Clamp Exhibit Capacity: 50 -> 20 guests/slot
+    LC->>Kafka: Publish: ExhibitAvailabilityChanged.v1 (enclosure_id, availability=capped, capacityCap=20)
+    Kafka-->>GG: Sync Available Slot Cache in Redis (Enforce 20-slot ceiling)
+
+    Note over Guest,GG: Guest Requests Spot Saver Booking
+    Guest->>GG: Request Spot Saver Pass (Amazonia Viewing - 14:00 Window)
+    GG->>PO: Query Walking Transit Feasibility (GIS / Crowd Density)
+    PO-->>GG: Transit OK (Guest within 12 min reachable perimeter)
+    GG->>Kafka: Publish: VisitRequested.v1 (guest_id="g-892", exhibit_id="amazonia-01", window="14:00-14:15")
+    Kafka->>LC: Consume VisitRequested.v1
+    
+    alt Capacity Available within Bio-Clamp
+        Note over LC: Validate slot against clamped ceiling (Headcount < 20)
+        LC->>Kafka: Publish: VisitConfirmed.v1 (id=ULID, exhibit_id="amazonia-01", slot_token="ss-tok-4891")
+        Kafka-->>GG: Consume VisitConfirmed.v1
+        GG-->>Guest: 200 OK (Confirmed Pass with Ed25519 QR Added to Wallet)
+    else Bio-Clamp Exceeded (Slots Saturated)
+        Note over LC: Reject: Welfare limit reached
+        LC->>Kafka: Publish: VisitDenied.v1 (exhibit_id="amazonia-01", reason="CapacityCapped", alt_windows)
+        Kafka-->>GG: Consume VisitDenied.v1
+        GG->>GG: Anti-Congestion Recommender generates alternative itinerary
+        GG-->>Guest: Advisory: "Amazonia resting — recommended Grand Carousel (5 min wait)"
+    end
+
+    Note over Guest,LC: In-Park Admission Verification
+    Guest->>LC: Scans QR at Amazonia Viewing Turnstile (Edge Verifier)
+    LC->>LC: Validate Token & Increment Live Dwell Headcount
+    LC-->>Guest: Gate Opens (Quiet Viewing Period Active)
